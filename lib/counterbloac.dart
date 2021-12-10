@@ -1,20 +1,37 @@
  import 'dart:async';
-class CounterBloc {
-  // this sink is the 'input'.
-  // sinks should be the _only_ way that 
-  // outside object can interact with blocs. 
-  StreamController<int> todoCompleteSink = StreamController();
 
-  // this stream is the 'output'
-  // it's the only property that outside
-  // objects can use to consume this blocs data.
-  Stream<int> get todoCompleteStream => todoCompleteSink.stream;
+import 'dart:math';
+ class MyClass {
+  late String name;
+  late String age;
 
-  CounterBloc() {
-    todoCompleteSink.add(0);
+  MyClass({
+    required this.name,
+    required this.age
+  });
+ 
+ 
+
+ }
+ class counterblock{
+  StreamController<MyClass> todoCompleteSink = StreamController();
+  Stream<MyClass> get getmyclassStream => todoCompleteSink.stream;
+  counterblock() {
+    todoCompleteSink.add(addMyclassData());
   }
-  
+
+
   dispose() {
     todoCompleteSink.close();
   }
-} 
+static int i=0;
+static int j=1;
+///
+  MyClass addMyclassData() {
+
+    return MyClass(age: (i++).toString(),name: (j++).toString());
+  }
+
+ 
+   
+ }

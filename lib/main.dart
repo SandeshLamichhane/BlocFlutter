@@ -3,20 +3,15 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
+import 'package:flutterblock/counterbloac.dart';
+
 void main() => runApp(MyApp());
 
 class CounterBloc {
   StreamController<String> todoCompleteSink = StreamController();
   Stream<String> get todoCompleteStream => todoCompleteSink.stream;
 
-  CounterBloc() {
-    todoCompleteSink.add(Random().toString());
-  }
-
-
-  dispose() {
-    todoCompleteSink.close();
-  }
+ 
 }
 
 class MyApp extends StatelessWidget {
@@ -34,14 +29,21 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatelessWidget {
-  final CounterBloc bloc = CounterBloc();
+  final counterblock bloc = counterblock();
   static int i=0;
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<String>(
+    return StreamBuilder<MyClass>(
       // here the bloc data is being consumed by the UI 
-      stream: bloc.todoCompleteStream,
+      stream: bloc.getmyclassStream,
       builder: (context, snapshot) {
+
+        if (!snapshot.hasData) {
+        return Center(child: CircularProgressIndicator(),);
+      }
+          if (snapshot.connectionState == ConnectionState.done) {
+
+      }
         return Scaffold(
           appBar: AppBar(
             title: Text("Flutter Demo Home Page"),
@@ -51,19 +53,20 @@ class MyHomePage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Text(
-                  'You have pushed the button this many times:',
+                  'You have pushed the button this many times:'+snapshot.data!.name.toString()
                 ),
                 Text(
-                  '${snapshot.data ?? 0}',
+                  '${snapshot.data!.name.toString() ?? 0}',
                   style: Theme.of(context).textTheme.bodyText1,
                 ),
               ],
             ),
           ),
           floatingActionButton: FloatingActionButton(
+             
             // here the sink is being used to tell
             // the bloc it should update it's state
-            onPressed: () => bloc.todoCompleteSink.add("event"),
+            onPressed: () => bloc.todoCompleteSink.add( bloc.addMyclassData()),
             tooltip: 'Increment',
             child: Icon(Icons.add),
           ),
