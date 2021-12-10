@@ -1,45 +1,20 @@
  import 'dart:async';
-
- 
-
-abstract class CounterEvent {}
-
-class IncrementEvent extends CounterEvent {}
-
-class DecrementEvent extends CounterEvent {}
-     
- 
-
 class CounterBloc {
-  int _counter = 0;
+  // this sink is the 'input'.
+  // sinks should be the _only_ way that 
+  // outside object can interact with blocs. 
+  StreamController<int> todoCompleteSink = StreamController();
 
-  final _counterStateController = StreamController<int>();
-  StreamSink<int> get _inCounter => _counterStateController.sink;
-  // For state, exposing only a stream which outputs data
-  Stream<int> get counter => _counterStateController.stream;
-
-  final _counterEventController = StreamController<CounterEvent>();
-  // For events, exposing only a sink which is an input
-  Sink<CounterEvent> get counterEventSink => _counterEventController.sink;
+  // this stream is the 'output'
+  // it's the only property that outside
+  // objects can use to consume this blocs data.
+  Stream<int> get todoCompleteStream => todoCompleteSink.stream;
 
   CounterBloc() {
-    // Whenever there is a new event, we want to map it to a new state
-    _counterEventController.stream.listen(_mapEventToState);
+    todoCompleteSink.add(0);
   }
-
-  void _mapEventToState(CounterEvent event) {
-    print(event.toString());
- 
-    if (event is IncrementEvent)
-      _counter++;
-    else
-      _counter--;
-
-    _inCounter.add(_counter);
+  
+  dispose() {
+    todoCompleteSink.close();
   }
-
-  void dispose() {
-    _counterStateController.close();
-    _counterEventController.close();
-  }
-}
+} 

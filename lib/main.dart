@@ -1,83 +1,74 @@
-import 'package:flutter/material.dart';
-import 'package:flutterblock/counterbloac.dart';
+import 'dart:math';
 
-void main() {
-  runApp(const MyApp());
+import 'package:flutter/material.dart';
+import 'dart:async';
+
+void main() => runApp(MyApp());
+
+class CounterBloc {
+  StreamController<String> todoCompleteSink = StreamController();
+  Stream<String> get todoCompleteStream => todoCompleteSink.stream;
+
+  CounterBloc() {
+    todoCompleteSink.add(Random().toString());
+  }
+
+
+  dispose() {
+    todoCompleteSink.close();
+  }
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-      
-         
+        primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-   final _bloc = CounterBloc();
-
-
+class MyHomePage extends StatelessWidget {
+  final CounterBloc bloc = CounterBloc();
+  static int i=0;
   @override
   Widget build(BuildContext context) {
-    
-    return Scaffold(
-      appBar: AppBar(
-         
-        title: Text(widget.title),
-      ),
-      body: Center(
-        
-        child: Column(
-          
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-
-          Flexible(
-            child: StreamBuilder(
-            stream: _bloc.counter,
-            initialData: 0,
-            builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Text(
-                    'You have pushed the button this many times:',
-                  ),
-                  Text(
-                    '${snapshot.data}',
-                    style: Theme.of(context).textTheme.headline1,
-                  ),
-                   
-            
-             
-            ],
-                  );
-            }
+    return StreamBuilder<String>(
+      // here the bloc data is being consumed by the UI 
+      stream: bloc.todoCompleteStream,
+      builder: (context, snapshot) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Text("Flutter Demo Home Page"),
+          ),
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  'You have pushed the button this many times:',
                 ),
-          ),])),
-      floatingActionButton: FloatingActionButton(
-        onPressed: ()=> _bloc.counterEventSink.add(IncrementEvent()),
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),  
+                Text(
+                  '${snapshot.data ?? 0}',
+                  style: Theme.of(context).textTheme.bodyText1,
+                ),
+              ],
+            ),
+          ),
+          floatingActionButton: FloatingActionButton(
+            // here the sink is being used to tell
+            // the bloc it should update it's state
+            onPressed: () => bloc.todoCompleteSink.add("event"),
+            tooltip: 'Increment',
+            child: Icon(Icons.add),
+          ),
+        );
+      }, 
     );
   }
 }
